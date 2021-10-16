@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Read letters aloud</title>
+	<style>
+		#typingDisplay {
+            text-align: center;
+            font-size: xxx-large;
+			text-transform: uppercase;
+		}
+	</style>
+</head>
+<body>
+<h1 id="typingDisplay">Enter a letter</h1>
+<script>
+    // 自Chrome 71以後，限定一定要使用者與頁面互動之後，才可以用這個SpeechAPI
+	function speechWordsHandler(e){
+        const speechWords = new window.SpeechSynthesisUtterance();
+        const typingDisplay = document.getElementById('typingDisplay');
+        typingDisplay.innerText = e.key;
+        console.log(e.key)
+        speechWords.text = e.key;
+        window.speechSynthesis.speak(speechWords);
+	}
+	document.addEventListener('keyup', speechWordsHandler);
+</script>
+</body>
+</html>

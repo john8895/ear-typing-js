@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+<button id="btn" type="button">button</button>
+<script>
+    var speechSU = new window.SpeechSynthesisUtterance();
+    speechSU.text = 'A';
+    document.getElementById('btn').addEventListener('click', function () {
+        window.speechSynthesis.speak(speechSU);
+    })
+</script>
+</body>
+</html>

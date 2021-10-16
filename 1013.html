@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+<button id="btn">按鈕</button>
+<div id="display"></div>
+<!--<iframe width="560" height="315" src="https://www.youtube.com/embed/1_HXP-rsMjI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
+<script>
+	document.getElementById('btn').onclick = function() {
+        console.log(11)
+		const embedPreString = 'https://www.youtube.com/embed/';
+		const iframe = document.createElement('iframe');
+        const videoId = '1_HXP-rsMjI'
+        iframe.src = embedPreString + videoId;
+		document.getElementById('display').appendChild(iframe);
+    }
+</script>
+</body>
+</html>
