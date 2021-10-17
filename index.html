@@ -9,53 +9,80 @@
             font-size: xxx-large;
             text-transform: uppercase;
         }
+		#nextLetterDiv {
+            text-align: center;
+		}
+		#nextLetter {
+            font-size: xx-large;
+            text-transform: uppercase;
+		}
 	</style>
 </head>
 <body>
 <h1 id="rightLetter"></h1>
-<div>Next: <span id="nextLetter"></span></div>
+<h2 id="nextLetterDiv">Next: <span id="nextLetter"></span></h2>
 <h1 id="typingDisplay">Enter a letter</h1>
 <script>
     function speechWord() {
         const rightLetter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+        // const rightLetter = ['a', 'b', 'c'];
         let steps = 0;
+        speechSynthesis(rightLetter[steps]);
 
-        // 自Chrome 71以後，限定一定要使用者與頁面互動之後，才可以用這個SpeechAPI
         function speechWordsHandler(e) {
-            const speechWords = new window.SpeechSynthesisUtterance();
             const typingDisplayElement = document.getElementById('typingDisplay');
             const rightLetterElement = document.getElementById('rightLetter');
             const nextLetterElement = document.getElementById('nextLetter');
             const typingLetter = e.key;
 
-            rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
-            nextLetterElement.innerText = rightLetter[steps + 1];  //
-            typingDisplayElement.innerText = typingLetter;  // 顯示輸入的文字
-
             window.speechSynthesis.cancel();  // 一開始先停止所有朗讀
 
-            console.log(steps);
-            console.log(rightLetter[steps]);
-
-            // 如果輸入字母與答案相同
-            if (typingLetter === rightLetter[steps]) {
-                console.log('right');
-                steps++;
-
-                // 如果已經到了答案最後一個就重新來過
-                if (steps > rightLetter.length - 1) {
-                    steps = 0;
-                }
-            } else {
-                // 輸入錯誤要做的事…
-                console.log('wrong');
+            // 如果已經到了答案最後一個就重新來過
+            if (steps === rightLetter.length - 1) {
+                steps = randomNumber();
+                typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
+                rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
+                nextLetterElement.innerText = rightLetter[steps];  // 顯示下一個字母
+                speechSynthesis(rightLetter[steps]);
+                return;
             }
 
-            // 朗讀所輸入的文字
-            speechWords.text = e.key;
+            rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
+            typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
+
+            // 如果輸入字母與答案不同
+            if (typingLetter !== rightLetter[steps]) {
+                const wrongSound = new Audio('wrong.mp3');
+                wrongSound.play();
+                speechSynthesis(rightLetter[steps]);
+                typingDisplayElement.style.color = 'red';
+                return;
+            }
+
+            typingDisplayElement.style.color = 'green';
+
+            // 如果正確
+            const correctSound = new Audio('correct.mp3');
+            correctSound.play();
+            steps = randomNumber();
+            console.log(steps)
+            // steps++;
+            speechSynthesis(rightLetter[steps]);  // 朗讀下一個字母
+            nextLetterElement.innerText = rightLetter[steps];  // 顯示下一個字母
+        }
+
+        function randomNumber(){
+            return parseInt(Math.random() * rightLetter.length);
+		}
+
+
+        function speechSynthesis(speechText) {
+            const speechWords = new window.SpeechSynthesisUtterance();
+            speechWords.text = speechText;
             window.speechSynthesis.speak(speechWords);
         }
 
+        // 註：自Chrome 71以後，限定一定要使用者與頁面互動之後，才可以用這個SpeechAPI
         document.addEventListener('keyup', speechWordsHandler);
     }
 
