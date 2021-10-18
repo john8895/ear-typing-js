@@ -3,90 +3,107 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Read letters aloud</title>
-	<style>
-        #typingDisplay, #rightLetter {
-            text-align: center;
-            font-size: xxx-large;
-            text-transform: uppercase;
-        }
-		#nextLetterDiv {
-            text-align: center;
-		}
-		#nextLetter {
-            font-size: xx-large;
-            text-transform: uppercase;
-		}
-	</style>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1 id="rightLetter"></h1>
-<h2 id="nextLetterDiv">Next: <span id="nextLetter"></span></h2>
-<h1 id="typingDisplay">Enter a letter</h1>
+<div id="app">
+	<header>
+		<span>Wrong: </span>
+		<ul class="d-flex wrong-answer-list">
+			<li v-for="item in wrongAnswer" >{{ item }}</li>
+		</ul>
+	</header>
+	<div class="settings">
+		<ul>
+			<li><input type="checkbox" v-model="settings.correctSound" :checked="settings.correctSound" class="mr-2">Correct Sound</li>
+			<li><input type="checkbox" v-model="settings.wrongSound" :checked="settings.wrongSound" class="mr-2">Wrong Sound</li>
+			<li><input type="input" v-model="settings.reviewStep" class="mr-2"></li>
+		</ul>
+	</div>
+	<h1 id="rightLetter"></h1>
+	<h2 id="nextLetterDiv">Next: <span>{{ nextLetter }}</span></h2>
+	<h1 id="typingDisplay">Enter a letter</h1>
+</div>
+
+<script src="https://unpkg.com/vue@next"></script>
+<script src="main.js"></script>
 <script>
-    function speechWord() {
-        const rightLetter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-        // const rightLetter = ['a', 'b', 'c'];
-        let steps = 0;
-        speechSynthesis(rightLetter[steps]);
+    /*
+	 * 難度 1 = [a-z] by order
+	 * 難度 2 = random letter [a-z]
+	 * 難度 3 = random letter [a-z][A-Z]
+	 * 錯誤字收集，輸入50字結算
+	 * 只練習易錯誤題庫
+	 */
 
-        function speechWordsHandler(e) {
-            const typingDisplayElement = document.getElementById('typingDisplay');
-            const rightLetterElement = document.getElementById('rightLetter');
-            const nextLetterElement = document.getElementById('nextLetter');
-            const typingLetter = e.key;
-
-            window.speechSynthesis.cancel();  // 一開始先停止所有朗讀
-
-            // 如果已經到了答案最後一個就重新來過
-            if (steps === rightLetter.length - 1) {
-                steps = randomNumber();
-                typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
-                rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
-                nextLetterElement.innerText = rightLetter[steps];  // 顯示下一個字母
-                speechSynthesis(rightLetter[steps]);
-                return;
-            }
-
-            rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
-            typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
-
-            // 如果輸入字母與答案不同
-            if (typingLetter !== rightLetter[steps]) {
-                const wrongSound = new Audio('wrong.mp3');
-                wrongSound.play();
-                speechSynthesis(rightLetter[steps]);
-                typingDisplayElement.style.color = 'red';
-                return;
-            }
-
-            typingDisplayElement.style.color = 'green';
-
-            // 如果正確
-            const correctSound = new Audio('correct.mp3');
-            correctSound.play();
-            steps = randomNumber();
-            console.log(steps)
-            // steps++;
-            speechSynthesis(rightLetter[steps]);  // 朗讀下一個字母
-            nextLetterElement.innerText = rightLetter[steps];  // 顯示下一個字母
-        }
-
-        function randomNumber(){
-            return parseInt(Math.random() * rightLetter.length);
-		}
-
-
-        function speechSynthesis(speechText) {
-            const speechWords = new window.SpeechSynthesisUtterance();
-            speechWords.text = speechText;
-            window.speechSynthesis.speak(speechWords);
-        }
-
-        // 註：自Chrome 71以後，限定一定要使用者與頁面互動之後，才可以用這個SpeechAPI
-        document.addEventListener('keyup', speechWordsHandler);
-    }
-
-    speechWord();
+    // function speechWord() {
+    //     let rightLetter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+    //     let wrongAnswerArray = [];
+    //     // const rightLetter = ['a', 'b', 'c'];
+    //     let steps = 0;
+    //     speechSynthesis(rightLetter[steps]);
+	//
+    //     function speechWordsHandler(e) {
+    //         const typingDisplayElement = document.getElementById('typingDisplay');
+    //         const rightLetterElement = document.getElementById('rightLetter');
+    //         const nextLetterElement = document.getElementById('nextLetter');
+    //         const typingLetter = e.key;
+    //         const wrongAnswerListElement = document.getElementById('wrongAnswerList');
+	//
+    //         window.speechSynthesis.cancel();  // 一開始先停止所有朗讀
+	//
+    //         // 如果已經到了答案最後一個就重新來過
+    //         if (steps === rightLetter.length - 1) {
+    //             steps = randomNumber();
+    //             typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
+    //             rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
+    //             nextLetterElement.innerText = rightLetter[steps];  // 顯示下一個字母
+    //             speechSynthesis(rightLetter[steps]);
+    //             return;
+    //         }
+	//
+    //         rightLetterElement.innerText = rightLetter[steps];  // 顯示答案
+    //         typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
+	//
+    //         // 如果輸入字母與答案不同
+    //         if (typingLetter !== rightLetter[steps]) {
+    //             wrongAnswerArray.push(rightLetter[steps]);
+    //             const wrongSound = new Audio('wrong.mp3');
+    //             wrongSound.play();
+    //             speechSynthesis(rightLetter[steps]);
+    //             typingDisplayElement.style.color = 'red';
+    //             return;
+    //         }
+	//
+    //         typingDisplayElement.style.color = 'green';
+	//
+    //         // 如果正確
+    //         const correctSound = new Audio('correct.mp3');
+    //         correctSound.play();
+    //         steps = randomNumber();
+    //         console.log(steps)
+    //         // steps++;
+    //         speechSynthesis(rightLetter[steps]);  // 朗讀下一個字母
+    //         nextLetterElement.innerText = rightLetter[steps];  // 顯示下一個字母
+    //     }
+	//
+    //     function randomNumber() {
+    //         return parseInt(Math.random() * rightLetter.length);
+    //     }
+	//
+	//
+    //     function speechSynthesis(speechText) {
+    //         const speechWords = new window.SpeechSynthesisUtterance();
+    //         speechWords.text = speechText;
+    //         window.speechSynthesis.speak(speechWords);
+    //     }
+	//
+    //     // 註：自Chrome 71以後，限定一定要使用者與頁面互動之後，才可以用這個SpeechAPI
+    //     document.addEventListener('keyup', speechWordsHandler);
+    // }
+	//
+    // speechWord();
 </script>
 </body>
 </html>

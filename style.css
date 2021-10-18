@@ -1,0 +1,29 @@
+.wrong-answer-list {
+  list-style-type: none;
+}
+.wrong-answer-list li {
+  margin-right: 5px;
+}
+
+#typingDisplay, #rightLetter {
+  text-align: center;
+  font-size: xxx-large;
+  /*text-transform: uppercase;*/
+}
+
+#nextLetterDiv {
+  text-align: center;
+}
+
+#nextLetter {
+  font-size: xx-large;
+  /*text-transform: uppercase;*/
+}
+
+.settings {
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+/*# sourceMappingURL=style.css.map */
