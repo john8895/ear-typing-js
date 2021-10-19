@@ -3,17 +3,22 @@ const app = Vue.createApp({
         const rightAnswerArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
         // const rightAnswerArray = ['a', 'b', 'c'];
         let wrongAnswer = [];
-        let nextLetter = '';
+        let letters = {
+            nextLetter: '',
+            typingLetter: 'Enter a letter',
+            rightLetter: '',
+        }
         const settings = {
             correctSound: false,
             wrongSound: true,
             reviewStep: '30',
+            totalStep: '50',
         }
         return {
             rightAnswerArray,
             wrongAnswer,
-            nextLetter,
             settings,
+            letters,
         }
     },
     methods: {
@@ -30,50 +35,57 @@ const app = Vue.createApp({
             speechSynthesis(rightAnswerArray[steps]);
             
             const speechWordsHandler = e => {
-                const typingDisplayElement = document.getElementById('typingDisplay');
-                const rightLetterElement = document.getElementById('rightLetter');
+                const typingDisplayElement = this.$refs.typingDisplay;
                 const typingLetter = e.key;
                 
                 window.speechSynthesis.cancel();  // 一開始先停止所有朗讀
                 
+                this.settings.totalStep--;
+                
+                // 遊戲結束
+                if (this.settings.totalStep === 0) {
+                    console.log('game over');
+                    return;
+                }
+                
                 // 如果已經到了答案最後一個就重新來過
                 if (steps === rightAnswerArray.length - 1) {
                     steps = randomNumber();
-                    typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
-                    rightLetterElement.innerText = rightAnswerArray[steps];  // 顯示答案
-                    this.nextLetter = rightAnswerArray[steps];  // 顯示下一個字母
+                    this.letters.typingLetter = typingLetter;  // 顯示輸入的字母
+                    this.letters.rightLetter = rightAnswerArray[steps];  // 顯示答案
+                    this.letters.nextLetter = rightAnswerArray[steps];  // 顯示下一個字母
                     speechSynthesis(rightAnswerArray[steps]);
                     return;
                 }
                 
-                rightLetterElement.innerText = rightAnswerArray[steps];  // 顯示答案
-                typingDisplayElement.innerText = typingLetter;  // 顯示輸入的字母
+                this.letters.rightLetter = rightAnswerArray[steps];  // 顯示答案
+                this.letters.typingLetter = typingLetter;  // 顯示輸入的字母
                 
                 // 如果輸入字母與答案不同
                 if (typingLetter !== rightAnswerArray[steps]) {
-                    console.log(this.wrongAnswer)
                     this.wrongAnswer.push(rightAnswerArray[steps]);
-                    const wrongSound = new Audio('wrong.mp3');
-                    wrongSound.play();
+                    playSound('wrong');
                     speechSynthesis(rightAnswerArray[steps]);
                     typingDisplayElement.style.color = 'red';
                     return;
                 }
                 
                 typingDisplayElement.style.color = 'green';
-                
-                // 如果正確
-                const correctSound = new Audio('correct.mp3');
-                // correctSound.play();
+                playSound('correct');
                 steps = randomNumber();
-                console.log(steps)
                 // steps++;
                 speechSynthesis(rightAnswerArray[steps]);  // 朗讀下一個字母
-                this.nextLetter = rightAnswerArray[steps];  // 顯示下一個字母
+                this.letters.nextLetter = rightAnswerArray[steps];  // 顯示下一個字母
             }
             
+            // random
             function randomNumber() {
                 return parseInt(Math.random() * rightAnswerArray.length);
+            }
+            
+            function playSound(state) {
+                if (state === 'correct') new Audio('correct.mp3').play();
+                if (state === 'wrong') new Audio('wrong.mp3').play();
             }
             
             

@@ -6,18 +6,20 @@
     }
 }
 
-#typingDisplay, #rightLetter {
+.typingDisplay, .rightLetter {
     text-align: center;
     font-size: xxx-large;
     /*text-transform: uppercase;*/
 }
 
-#nextLetterDiv {
+.nextLetterDiv {
     text-align: center;
+    span {
+        font-size: 16rem;
+    }
 }
 
-#nextLetter {
-    font-size: xx-large;
+.nextLetter {
     /*text-transform: uppercase;*/
 }
 
@@ -25,4 +27,7 @@
     position: fixed;
     right: 0;
     top: 0;
+}
+[v-cloak] {
+    display: none;
 }
